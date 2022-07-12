@@ -35,4 +35,7 @@ export const defaultTheme = {
     roboto: `'Roboto', sans-serif`,
     'roboto-mono': `'Roboto Mono', monospace`,
   },
+  radius: {
+    md: '8px',
+  },
 }
