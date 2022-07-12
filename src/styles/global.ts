@@ -12,9 +12,24 @@ export const GlobalStyle = createGlobalStyle`
     box-shadow: 0 0 0 2px ${(props) => props.theme.colors['green-500']};
   }
 
+  ::selection {
+    color: ${(props) => props.theme.colors.white};
+    background: ${(props) => props.theme.colors['green-300']};
+  }
+
+  ::-moz-selection {
+    color: ${(props) => props.theme.colors.white};
+    background: ${(props) => props.theme.colors['green-300']};
+  }
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
   body {
     background: ${(props) => props.theme.colors['gray-900']};
     color: ${(props) => props.theme.colors['gray-100']};
+    -webkit-font-smoothing: antialiased;
   }
 
   body, input, textarea, button {
@@ -30,5 +45,11 @@ export const GlobalStyle = createGlobalStyle`
 
   a {
     text-decoration: none;
+  }
+
+  @media screen and (max-width: 768px) {
+    html {
+      font-size: 87.5%;
+    }
   }
 `
