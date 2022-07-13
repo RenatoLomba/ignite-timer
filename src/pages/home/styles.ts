@@ -45,7 +45,7 @@ export const BaseInput = styled.input`
     border-color: ${(props) => props.theme.colors['green-500']};
   }
 
-  &:not(:placeholder-shown):not(:focus) {
+  &:not(:placeholder-shown):focus {
     border-color: ${(props) => props.theme.colors['gray-100']};
   }
 `
@@ -60,6 +60,56 @@ export const TaskInput = styled(BaseInput)`
 
 export const MinuteAmountInput = styled(BaseInput)`
   width: 4rem;
+
+  -webkit-appearance: textfield;
+  -moz-appearance: textfield;
+  appearance: textfield;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+  }
+
+  text-align: center;
+`
+
+export const MinuteAmountInputPickerContainer = styled.div`
+  position: relative;
+
+  button {
+    position: absolute;
+    border: none;
+    background: transparent;
+    height: 1rem;
+    width: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: ${(props) => props.theme.fontSizes.xl};
+    color: ${(props) => props.theme.colors['gray-500']};
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: ${(props) => props.theme.colors['gray-100']};
+    }
+
+    &:focus {
+      box-shadow: none;
+    }
+
+    &.left {
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    &.right {
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+  }
 `
 
 export const CountdownContainer = styled.div`
