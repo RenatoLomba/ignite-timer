@@ -47,6 +47,7 @@ export const HistoryListWrapper = styled.div`
       padding: 1rem;
       font-size: ${(props) => props.theme.fontSizes.sm};
       line-height: 1.6;
+      color: ${(props) => props.theme.colors['gray-300']};
 
       &:first-child {
         padding-left: 1.5rem;
