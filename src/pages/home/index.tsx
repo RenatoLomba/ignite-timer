@@ -22,8 +22,14 @@ export function Home() {
     minuteAmountInputRef.current?.stepDown()
   }
 
-  function handleChangeMinuteAmountInput(currentAmount: number) {
+  function handleChangeMinuteAmountInput(value: string) {
     if (!minuteAmountInputRef.current) return
+
+    if (value.length > 2) {
+      minuteAmountInputRef.current.value = '60'
+    }
+
+    const currentAmount = Number(value)
 
     if (currentAmount < 0) {
       minuteAmountInputRef.current.value = '0'
@@ -60,9 +66,7 @@ export function Home() {
               -
             </button>
             <MinuteAmountInput
-              onChange={(e) =>
-                handleChangeMinuteAmountInput(Number(e.target.value))
-              }
+              onChange={(e) => handleChangeMinuteAmountInput(e.target.value)}
               ref={minuteAmountInputRef}
               placeholder="00"
               type="number"
