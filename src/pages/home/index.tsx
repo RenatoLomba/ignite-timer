@@ -1,5 +1,5 @@
 import { Play } from 'phosphor-react'
-import { useRef } from 'react'
+import { useForm } from 'react-hook-form'
 
 import {
   HomeContainer,
@@ -11,41 +11,38 @@ import {
   MinuteAmountInputPickerContainer,
 } from './styles'
 
+interface ITaskFieldsValues {
+  task: string
+  minuteAmount: number
+}
+
 export function Home() {
-  const minuteAmountInputRef = useRef<HTMLInputElement>(null)
+  const { register, handleSubmit, setValue, getValues, watch } =
+    useForm<ITaskFieldsValues>()
 
   function increment() {
-    minuteAmountInputRef.current?.stepUp()
+    const currentMinuteAmountValue = getValues('minuteAmount') || 0
+    setValue('minuteAmount', currentMinuteAmountValue + 5)
   }
 
   function decrement() {
-    minuteAmountInputRef.current?.stepDown()
+    const currentMinuteAmountValue = getValues('minuteAmount') || 0
+    setValue('minuteAmount', currentMinuteAmountValue - 5)
   }
 
-  function handleChangeMinuteAmountInput(value: string) {
-    if (!minuteAmountInputRef.current) return
-
-    if (value.length > 2) {
-      minuteAmountInputRef.current.value = '60'
-    }
-
-    const currentAmount = Number(value)
-
-    if (currentAmount < 0) {
-      minuteAmountInputRef.current.value = '0'
-    }
-
-    if (currentAmount > 60) {
-      minuteAmountInputRef.current.value = '60'
-    }
+  function handleCreateNewCycle(data: ITaskFieldsValues) {
+    console.log(data)
   }
+
+  const isSubmitDisabled = !watch('task')
 
   return (
     <HomeContainer>
-      <form>
+      <form onSubmit={handleSubmit(handleCreateNewCycle)}>
         <TaskFormContainer>
           <label htmlFor="task">Vou trabalhar em</label>
           <TaskInput
+            {...register('task', { required: true })}
             list="task-suggestions"
             placeholder="Dê um nome para o seu projeto"
             type="text"
@@ -66,8 +63,10 @@ export function Home() {
               -
             </button>
             <MinuteAmountInput
-              onChange={(e) => handleChangeMinuteAmountInput(e.target.value)}
-              ref={minuteAmountInputRef}
+              {...register('minuteAmount', {
+                required: true,
+                valueAsNumber: true,
+              })}
               placeholder="00"
               type="number"
               id="minuteAmount"
@@ -93,7 +92,7 @@ export function Home() {
           <span>0</span>
         </CountdownContainer>
 
-        <CountdownButton type="submit">
+        <CountdownButton type="submit" disabled={isSubmitDisabled}>
           <Play size={24} /> Começar
         </CountdownButton>
       </form>
