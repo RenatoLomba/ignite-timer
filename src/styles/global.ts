@@ -23,6 +23,17 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   ::-webkit-scrollbar {
+    display: block;
+    width: 0.5rem;
+    height: 0.5rem;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #505059;
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-corner {
     display: none;
   }
 
