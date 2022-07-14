@@ -1,5 +1,6 @@
+import { differenceInSeconds } from 'date-fns'
 import { Play } from 'phosphor-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -23,7 +24,10 @@ type Cycle = {
   id: string
   task: string
   minuteAmount: number
+  startDate: Date
 }
+
+let countdownInterval: number | null = null
 
 export function Home() {
   const {
@@ -40,6 +44,9 @@ export function Home() {
 
   const [cycles, setCycles] = useState<Cycle[]>([])
   const [activeCycleId, setActiveCycleId] = useState<string | null>(null)
+  const [secondsPassed, setSecondsPassed] = useState(0)
+
+  const isSubmitDisabled = !watch('task')
 
   function increment() {
     const currentMinuteAmountValue = getValues('minuteAmount') || 0
@@ -56,19 +63,43 @@ export function Home() {
       id: new Date().getTime().toString(),
       task: data.task,
       minuteAmount: data.minuteAmount,
+      startDate: new Date(),
     }
 
     setCycles((prev) => [newCycle, ...prev])
     setActiveCycleId(newCycle.id)
+    setSecondsPassed(0)
+
+    if (countdownInterval) {
+      clearInterval(countdownInterval)
+    }
 
     reset()
   }
 
-  const isSubmitDisabled = !watch('task')
-
   const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
 
-  console.log(activeCycle)
+  const totalSeconds = activeCycle ? activeCycle.minuteAmount * 60 : 0
+  const currentSeconds = activeCycle ? totalSeconds - secondsPassed : 0
+
+  const minuteAmount = Math.floor(currentSeconds / 60)
+  const secondAmount = (currentSeconds % 60).toString().padStart(2, '0')
+
+  const countdownMinutes = String(minuteAmount).padStart(2, '0')
+  const countdownSeconds = String(secondAmount).padStart(2, '0')
+
+  useEffect(() => {
+    if (activeCycle) {
+      countdownInterval = setInterval(() => {
+        const secondsPassedBetweenNowAndStartDate = differenceInSeconds(
+          new Date(),
+          activeCycle.startDate,
+        )
+
+        setSecondsPassed(secondsPassedBetweenNowAndStartDate)
+      }, 1000)
+    }
+  }, [activeCycle])
 
   return (
     <HomeContainer>
@@ -131,13 +162,13 @@ export function Home() {
         </TaskFormContainer>
 
         <CountdownContainer>
-          <span>0</span>
-          <span>0</span>
+          <span>{countdownMinutes[0]}</span>
+          <span>{countdownMinutes[1]}</span>
 
           <span className="separator">:</span>
 
-          <span>0</span>
-          <span>0</span>
+          <span>{countdownSeconds[0]}</span>
+          <span>{countdownSeconds[1]}</span>
         </CountdownContainer>
 
         <CountdownButton type="submit" disabled={isSubmitDisabled}>
