@@ -27,7 +27,10 @@ type Cycle = {
   startDate: Date
 }
 
-let countdownInterval: number | null = null
+const SECONDS_ON_A_MINUTE = 60
+const MINUTES_STEP_INCREMENT_NUMBER = 5
+const MAX_CYCLE_MINUTES = 60
+const MIN_CYCLE_MINUTES = 0
 
 export function Home() {
   const {
@@ -50,12 +53,18 @@ export function Home() {
 
   function increment() {
     const currentMinuteAmountValue = getValues('minuteAmount') || 0
-    setValue('minuteAmount', currentMinuteAmountValue + 5)
+    setValue(
+      'minuteAmount',
+      currentMinuteAmountValue + MINUTES_STEP_INCREMENT_NUMBER,
+    )
   }
 
   function decrement() {
     const currentMinuteAmountValue = getValues('minuteAmount') || 0
-    setValue('minuteAmount', currentMinuteAmountValue - 5)
+    setValue(
+      'minuteAmount',
+      currentMinuteAmountValue - MINUTES_STEP_INCREMENT_NUMBER,
+    )
   }
 
   function handleCreateNewCycle(data: TaskFormFields) {
@@ -70,25 +79,27 @@ export function Home() {
     setActiveCycleId(newCycle.id)
     setSecondsPassed(0)
 
-    if (countdownInterval) {
-      clearInterval(countdownInterval)
-    }
-
     reset()
   }
 
   const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
 
-  const totalSeconds = activeCycle ? activeCycle.minuteAmount * 60 : 0
+  const totalSeconds = activeCycle
+    ? activeCycle.minuteAmount * SECONDS_ON_A_MINUTE
+    : 0
   const currentSeconds = activeCycle ? totalSeconds - secondsPassed : 0
 
-  const minuteAmount = Math.floor(currentSeconds / 60)
-  const secondAmount = (currentSeconds % 60).toString().padStart(2, '0')
+  const minuteAmount = Math.floor(currentSeconds / SECONDS_ON_A_MINUTE)
+  const secondAmount = (currentSeconds % SECONDS_ON_A_MINUTE)
+    .toString()
+    .padStart(2, '0')
 
   const countdownMinutes = String(minuteAmount).padStart(2, '0')
   const countdownSeconds = String(secondAmount).padStart(2, '0')
 
   useEffect(() => {
+    let countdownInterval: number
+
     if (activeCycle) {
       countdownInterval = setInterval(() => {
         const secondsPassedBetweenNowAndStartDate = differenceInSeconds(
@@ -99,7 +110,17 @@ export function Home() {
         setSecondsPassed(secondsPassedBetweenNowAndStartDate)
       }, 1000)
     }
+
+    return () => {
+      clearInterval(countdownInterval!)
+    }
   }, [activeCycle])
+
+  useEffect(() => {
+    if (!activeCycle) return
+
+    document.title = `${countdownMinutes}:${countdownSeconds} - ${activeCycle?.task} | Ignite Timer`
+  }, [countdownMinutes, countdownSeconds, activeCycle])
 
   return (
     <HomeContainer>
@@ -141,9 +162,9 @@ export function Home() {
                 placeholder="00"
                 type="number"
                 id="minuteAmount"
-                step={5}
-                min={0}
-                max={60}
+                step={MINUTES_STEP_INCREMENT_NUMBER}
+                min={MIN_CYCLE_MINUTES}
+                max={MAX_CYCLE_MINUTES}
               />
               <button onClick={increment} className="right" type="button">
                 +
