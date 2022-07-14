@@ -8,6 +8,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import {
   TaskFormFields,
   taskFormSchemaValidator,
+  MIN_CYCLE_MINUTES,
+  MAX_CYCLE_MINUTES,
 } from '../../utils/validators/task-form-validator'
 import {
   StopCountdownButton,
@@ -29,12 +31,11 @@ type Cycle = {
   minuteAmount: number
   startDate: Date
   suspendedDate?: Date
+  endedDate?: Date
 }
 
 const SECONDS_ON_A_MINUTE = 60
 const MINUTES_STEP_INCREMENT_NUMBER = 5
-const MAX_CYCLE_MINUTES = 60
-const MIN_CYCLE_MINUTES = 0
 
 export function Home() {
   const {
@@ -121,19 +122,33 @@ export function Home() {
 
     if (activeCycle) {
       countdownInterval = setInterval(() => {
-        const secondsPassedBetweenNowAndStartDate = differenceInSeconds(
+        const secondsPassedFromStart = differenceInSeconds(
           new Date(),
           activeCycle.startDate,
         )
 
-        setSecondsPassed(secondsPassedBetweenNowAndStartDate)
+        if (secondsPassedFromStart >= totalSeconds) {
+          setCycles((prev) =>
+            prev.map((cycle) => {
+              if (cycle.id === activeCycle.id) {
+                return { ...cycle, endedDate: new Date() }
+              }
+
+              return cycle
+            }),
+          )
+
+          setActiveCycleId(null)
+        } else {
+          setSecondsPassed(secondsPassedFromStart)
+        }
       }, 1000)
     }
 
     return () => {
       clearInterval(countdownInterval!)
     }
-  }, [activeCycle])
+  }, [activeCycle, totalSeconds])
 
   useEffect(() => {
     if (!activeCycle) return
@@ -182,7 +197,6 @@ export function Home() {
               <MinuteAmountInput
                 isError={!!errors.minuteAmount}
                 {...register('minuteAmount', {
-                  required: true,
                   valueAsNumber: true,
                 })}
                 placeholder="00"
