@@ -25,7 +25,11 @@ export const TaskFormContainer = styled.div`
   flex-wrap: wrap;
 `
 
-export const BaseInput = styled.input`
+type BaseInputProps = {
+  isError?: boolean
+}
+
+export const BaseInput = styled.input<BaseInputProps>`
   background: transparent;
   border: 0;
   border-bottom: 2px solid ${(props) => props.theme.colors['gray-500']};
@@ -33,6 +37,8 @@ export const BaseInput = styled.input`
   color: ${(props) => props.theme.colors['gray-100']};
   font-size: ${(props) => props.theme.fontSizes.lg};
   font-weight: ${(props) => props.theme.fontWeights.bold};
+  border-color: ${(props) =>
+    props.isError ? props.theme.colors['red-500'] : ''};
 
   &::placeholder {
     font-size: ${(props) => props.theme.fontSizes.lg};
@@ -42,11 +48,13 @@ export const BaseInput = styled.input`
 
   &:focus {
     box-shadow: none;
-    border-color: ${(props) => props.theme.colors['green-500']};
+    border-color: ${({ isError, theme }) =>
+      isError ? theme.colors['red-500'] : theme.colors['green-500']};
   }
 
   &:not(:placeholder-shown):focus {
-    border-color: ${(props) => props.theme.colors['gray-100']};
+    border-color: ${({ isError, theme }) =>
+      isError ? theme.colors['red-500'] : theme.colors['gray-100']};
   }
 `
 
@@ -159,5 +167,20 @@ export const CountdownButton = styled.button`
   &:disabled {
     opacity: 0.7;
     cursor: not-allowed;
+  }
+`
+
+export const InputContainer = styled.div`
+  position: relative;
+
+  input {
+    display: block;
+  }
+
+  small {
+    position: absolute;
+    font-size: ${(props) => props.theme.fontSizes.xs};
+    color: ${(props) => props.theme.colors['red-500']};
+    padding-top: 5px;
   }
 `

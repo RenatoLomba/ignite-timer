@@ -1,6 +1,12 @@
 import { Play } from 'phosphor-react'
 import { useForm } from 'react-hook-form'
 
+import { zodResolver } from '@hookform/resolvers/zod'
+
+import {
+  TaskFormFields,
+  taskFormSchemaValidator,
+} from '../../utils/validators/task-form-validator'
 import {
   HomeContainer,
   TaskFormContainer,
@@ -9,16 +15,20 @@ import {
   TaskInput,
   MinuteAmountInput,
   MinuteAmountInputPickerContainer,
+  InputContainer,
 } from './styles'
 
-interface ITaskFieldsValues {
-  task: string
-  minuteAmount: number
-}
-
 export function Home() {
-  const { register, handleSubmit, setValue, getValues, watch } =
-    useForm<ITaskFieldsValues>()
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    getValues,
+    watch,
+    formState: { errors },
+  } = useForm<TaskFormFields>({
+    resolver: zodResolver(taskFormSchemaValidator),
+  })
 
   function increment() {
     const currentMinuteAmountValue = getValues('minuteAmount') || 0
@@ -30,7 +40,7 @@ export function Home() {
     setValue('minuteAmount', currentMinuteAmountValue - 5)
   }
 
-  function handleCreateNewCycle(data: ITaskFieldsValues) {
+  function handleCreateNewCycle(data: TaskFormFields) {
     console.log(data)
   }
 
@@ -41,13 +51,17 @@ export function Home() {
       <form onSubmit={handleSubmit(handleCreateNewCycle)}>
         <TaskFormContainer>
           <label htmlFor="task">Vou trabalhar em</label>
-          <TaskInput
-            {...register('task', { required: true })}
-            list="task-suggestions"
-            placeholder="Dê um nome para o seu projeto"
-            type="text"
-            id="task"
-          />
+          <InputContainer>
+            <TaskInput
+              isError={!!errors.task}
+              {...register('task', { required: true })}
+              list="task-suggestions"
+              placeholder="Dê um nome para o seu projeto"
+              type="text"
+              id="task"
+            />
+            {errors.task && <small>{errors.task.message}</small>}
+          </InputContainer>
 
           <datalist id="task-suggestions">
             <option value="Projeto 1" />
@@ -58,26 +72,36 @@ export function Home() {
 
           <label htmlFor="minuteAmount">durante</label>
 
-          <MinuteAmountInputPickerContainer>
-            <button onClick={decrement} className="left" type="button">
-              -
-            </button>
-            <MinuteAmountInput
-              {...register('minuteAmount', {
-                required: true,
-                valueAsNumber: true,
-              })}
-              placeholder="00"
-              type="number"
-              id="minuteAmount"
-              step={5}
-              min={0}
-              max={60}
-            />
-            <button onClick={increment} className="right" type="button">
-              +
-            </button>
-          </MinuteAmountInputPickerContainer>
+          <InputContainer>
+            <MinuteAmountInputPickerContainer>
+              <button onClick={decrement} className="left" type="button">
+                -
+              </button>
+              <MinuteAmountInput
+                isError={!!errors.minuteAmount}
+                {...register('minuteAmount', {
+                  required: true,
+                  valueAsNumber: true,
+                })}
+                placeholder="00"
+                type="number"
+                id="minuteAmount"
+                step={5}
+                min={0}
+                max={60}
+              />
+              <button onClick={increment} className="right" type="button">
+                +
+              </button>
+            </MinuteAmountInputPickerContainer>
+            {errors.minuteAmount && (
+              <small>
+                {errors.minuteAmount.type === 'invalid_type'
+                  ? 'Obrigatório'
+                  : errors.minuteAmount.message}
+              </small>
+            )}
+          </InputContainer>
 
           <span>minutos.</span>
         </TaskFormContainer>
