@@ -25,6 +25,7 @@ export function Home() {
     setValue,
     getValues,
     watch,
+    reset,
     formState: { errors },
   } = useForm<TaskFormFields>({
     resolver: zodResolver(taskFormSchemaValidator),
@@ -42,6 +43,8 @@ export function Home() {
 
   function handleCreateNewCycle(data: TaskFormFields) {
     console.log(data)
+
+    reset()
   }
 
   const isSubmitDisabled = !watch('task')
