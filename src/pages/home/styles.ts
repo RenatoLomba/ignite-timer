@@ -29,7 +29,7 @@ type BaseInputProps = {
   isError?: boolean
 }
 
-export const BaseInput = styled.input<BaseInputProps>`
+const BaseInput = styled.input<BaseInputProps>`
   background: transparent;
   border: 0;
   border-bottom: 2px solid ${(props) => props.theme.colors['gray-500']};
@@ -142,31 +142,6 @@ export const CountdownContainer = styled.div`
     display: flex;
     justify-content: center;
     background: transparent;
-  }
-`
-
-export const CountdownButton = styled.button`
-  width: 100%;
-  border: 0;
-  padding: 1rem;
-  border-radius: ${(props) => props.theme.radius.md};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: ${(props) => props.theme.fontWeights.bold};
-  cursor: pointer;
-  background: ${(props) => props.theme.colors['green-500']};
-  color: ${(props) => props.theme.colors['gray-100']};
-  transition: background 0.2s ease;
-
-  &:hover:not(:disabled) {
-    background: ${(props) => props.theme.colors['green-700']};
-  }
-
-  &:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
   }
 `
 
