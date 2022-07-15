@@ -17,7 +17,6 @@ import {
 } from './styles'
 
 type Cycle = {
-  id: string
   task: string
   minuteAmount: number
   startDate: Date
@@ -26,8 +25,8 @@ type Cycle = {
 }
 
 type CyclesContextData = {
-  cycles: Cycle[]
-  activeCycle?: Cycle
+  cycles: Map<string, Cycle>
+  activeCycle?: Cycle | null
   secondsPassed: number
   endActiveCycle: () => void
   changeSecondsPassed: (seconds: number) => void
@@ -38,7 +37,7 @@ const CyclesContext = createContext({} as CyclesContextData)
 export const useCycles = () => useContext(CyclesContext)
 
 export function Home() {
-  const [cycles, setCycles] = useState<Cycle[]>([])
+  const [cycles, setCycles] = useState(new Map<string, Cycle>())
   const [activeCycleId, setActiveCycleId] = useState<string | null>(null)
   const [secondsPassed, setSecondsPassed] = useState(0)
 
@@ -48,49 +47,52 @@ export function Home() {
 
   const { watch, handleSubmit, reset } = newCycleForm
 
-  const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
+  const activeCycle = activeCycleId ? cycles.get(activeCycleId) : null
   const hasActiveCycle = !!activeCycle
 
   const isSubmitDisabled = !watch('task')
 
   function handleCreateNewCycle(data: TaskFormFields) {
+    const id = new Date().getTime().toString()
+
     const newCycle: Cycle = {
-      id: new Date().getTime().toString(),
       task: data.task,
       minuteAmount: data.minuteAmount,
       startDate: new Date(),
     }
 
-    setCycles((prev) => [newCycle, ...prev])
-    setActiveCycleId(newCycle.id)
+    setCycles((prev) => {
+      const updatedCycles = new Map(prev.entries())
+      updatedCycles.set(id, newCycle)
+      return updatedCycles
+    })
+    setActiveCycleId(id)
     setSecondsPassed(0)
   }
 
   function handleStopCycle() {
-    setCycles((prev) =>
-      prev.map((cycle) => {
-        if (cycle.id === activeCycleId) {
-          return { ...cycle, suspendedDate: new Date() }
-        }
-
-        return cycle
-      }),
-    )
+    setCycles((prev) => {
+      const cyclesUpdated = new Map(prev.entries())
+      cyclesUpdated.set(activeCycleId!, {
+        ...cyclesUpdated.get(activeCycleId!)!,
+        suspendedDate: new Date(),
+      })
+      return cyclesUpdated
+    })
 
     setActiveCycleId(null)
     reset()
   }
 
   function endActiveCycle() {
-    setCycles((prev) =>
-      prev.map((cycle) => {
-        if (cycle.id === activeCycle?.id) {
-          return { ...cycle, endedDate: new Date() }
-        }
-
-        return cycle
-      }),
-    )
+    setCycles((prev) => {
+      const cyclesUpdated = new Map(prev.entries())
+      cyclesUpdated.set(activeCycleId!, {
+        ...cyclesUpdated.get(activeCycleId!)!,
+        endedDate: new Date(),
+      })
+      return cyclesUpdated
+    })
 
     setActiveCycleId(null)
     reset()
