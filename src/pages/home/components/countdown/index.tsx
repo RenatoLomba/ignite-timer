@@ -1,7 +1,7 @@
 import { differenceInSeconds } from 'date-fns'
 import { FC, useEffect } from 'react'
 
-import { useCycles } from '../..'
+import { useCycles } from '../../../../contexts/cycles'
 import { CountdownContainer } from './styles'
 
 const SECONDS_ON_A_MINUTE = 60

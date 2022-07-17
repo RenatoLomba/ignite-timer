@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { useFormContext } from 'react-hook-form'
 
-import { useCycles } from '../..'
+import { useCycles } from '../../../../contexts/cycles'
 import {
   TaskFormFields,
   MIN_CYCLE_MINUTES,

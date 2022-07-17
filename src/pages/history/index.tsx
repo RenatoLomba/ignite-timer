@@ -1,7 +1,10 @@
 import { StatusBadge } from '../../components/status-badge'
+// import { useCycles } from '../../contexts/cycles'
 import { HistoryContainer, HistoryListWrapper } from './styles'
 
 export function History() {
+  // const { cycles } = useCycles()
+
   return (
     <HistoryContainer>
       <h1>Meu histórico</h1>
