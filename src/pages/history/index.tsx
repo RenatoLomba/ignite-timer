@@ -1,9 +1,12 @@
+import { formatDistanceToNow } from 'date-fns'
+import ptBR from 'date-fns/locale/pt-BR'
+
 import { StatusBadge } from '../../components/status-badge'
-// import { useCycles } from '../../contexts/cycles'
+import { useCycles } from '../../contexts/cycles'
 import { HistoryContainer, HistoryListWrapper } from './styles'
 
 export function History() {
-  // const { cycles } = useCycles()
+  const { cycles } = useCycles()
 
   return (
     <HistoryContainer>
@@ -20,54 +23,29 @@ export function History() {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Conserto de débitos técnicos</td>
-              <td>25 minutos</td>
-              <td>Há cerca de 2 meses</td>
-              <td>
-                <StatusBadge status="done" />
-              </td>
-            </tr>
-            <tr>
-              <td>Conserto de débitos técnicos</td>
-              <td>25 minutos</td>
-              <td>Há cerca de 2 meses</td>
-              <td>
-                <StatusBadge status="in-progress" />
-              </td>
-            </tr>
-            <tr>
-              <td>Conserto de débitos técnicos</td>
-              <td>25 minutos</td>
-              <td>Há cerca de 2 meses</td>
-              <td>
-                <StatusBadge status="suspended" />
-              </td>
-            </tr>
-            <tr>
-              <td>Conserto de débitos técnicos</td>
-              <td>25 minutos</td>
-              <td>Há cerca de 2 meses</td>
-              <td>
-                <StatusBadge status="suspended" />
-              </td>
-            </tr>
-            <tr>
-              <td>Conserto de débitos técnicos</td>
-              <td>25 minutos</td>
-              <td>Há cerca de 2 meses</td>
-              <td>
-                <StatusBadge status="done" />
-              </td>
-            </tr>
-            <tr>
-              <td>Conserto de débitos técnicos</td>
-              <td>25 minutos</td>
-              <td>Há cerca de 2 meses</td>
-              <td>
-                <StatusBadge status="in-progress" />
-              </td>
-            </tr>
+            {[...cycles.entries()].map(([key, cycle]) => (
+              <tr key={key}>
+                <td>{cycle.task}</td>
+                <td>{cycle.minuteAmount} minutos</td>
+                <td>
+                  {formatDistanceToNow(cycle.startDate, {
+                    addSuffix: true,
+                    locale: ptBR,
+                  })}
+                </td>
+                <td>
+                  <StatusBadge
+                    status={
+                      cycle.endedDate
+                        ? 'done'
+                        : cycle.suspendedDate
+                        ? 'suspended'
+                        : 'in-progress'
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </HistoryListWrapper>
