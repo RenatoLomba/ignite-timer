@@ -45,40 +45,37 @@ type CyclesState = {
 function CyclesProvider({ children }: CyclesProviderProps) {
   const [cyclesState, dispatch] = useReducer(
     (state: CyclesState, action: any) => {
-      if (action.type === 'ADD_NEW_CYCLE') {
-        const { payload } = action
-        const id = new Date().getTime().toString()
+      switch (action.type) {
+        case 'ADD_NEW_CYCLE':
+          const { payload } = action
+          const id = new Date().getTime().toString()
 
-        return {
-          ...state,
-          cycles: state.cycles.set(id, payload.newCycle),
-          activeCycleId: id,
-        }
+          return {
+            ...state,
+            cycles: state.cycles.set(id, payload.newCycle),
+            activeCycleId: id,
+          }
+        case 'STOP_CURRENT_CYCLE':
+          return {
+            ...state,
+            cycles: state.cycles.set(state.activeCycleId!, {
+              ...state.cycles.get(state.activeCycleId!)!,
+              suspendedDate: new Date(),
+            }),
+            activeCycleId: null,
+          }
+        case 'END_CURRENT_CYCLE':
+          return {
+            ...state,
+            cycles: state.cycles.set(state.activeCycleId!, {
+              ...state.cycles.get(state.activeCycleId!)!,
+              endedDate: new Date(),
+            }),
+            activeCycleId: null,
+          }
+        default:
+          return state
       }
-
-      if (action.type === 'STOP_CURRENT_CYCLE') {
-        return {
-          ...state,
-          cycles: state.cycles.set(state.activeCycleId!, {
-            ...state.cycles.get(state.activeCycleId!)!,
-            suspendedDate: new Date(),
-          }),
-          activeCycleId: null,
-        }
-      }
-
-      if (action.type === 'END_CURRENT_CYCLE') {
-        return {
-          ...state,
-          cycles: state.cycles.set(state.activeCycleId!, {
-            ...state.cycles.get(state.activeCycleId!)!,
-            endedDate: new Date(),
-          }),
-          activeCycleId: null,
-        }
-      }
-
-      return state
     },
     {
       cycles: new Map<string, Cycle>(),
