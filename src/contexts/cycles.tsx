@@ -1,4 +1,10 @@
-import { createContext, ReactNode, useContext, useState } from 'react'
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useReducer,
+  useState,
+} from 'react'
 
 type Cycle = {
   task: string
@@ -31,55 +37,87 @@ type CyclesProviderProps = {
   children: ReactNode
 }
 
+type CyclesState = {
+  cycles: Map<string, Cycle>
+  activeCycleId?: string | null
+}
+
 function CyclesProvider({ children }: CyclesProviderProps) {
-  const [cycles, setCycles] = useState(new Map<string, Cycle>())
-  const [activeCycleId, setActiveCycleId] = useState<string | null>(null)
+  const [cyclesState, dispatch] = useReducer(
+    (state: CyclesState, action: any) => {
+      if (action.type === 'ADD_NEW_CYCLE') {
+        const { payload } = action
+        const id = new Date().getTime().toString()
+
+        return {
+          ...state,
+          cycles: state.cycles.set(id, payload.newCycle),
+          activeCycleId: id,
+        }
+      }
+
+      if (action.type === 'STOP_CURRENT_CYCLE') {
+        return {
+          ...state,
+          cycles: state.cycles.set(state.activeCycleId!, {
+            ...state.cycles.get(state.activeCycleId!)!,
+            suspendedDate: new Date(),
+          }),
+          activeCycleId: null,
+        }
+      }
+
+      if (action.type === 'END_CURRENT_CYCLE') {
+        return {
+          ...state,
+          cycles: state.cycles.set(state.activeCycleId!, {
+            ...state.cycles.get(state.activeCycleId!)!,
+            endedDate: new Date(),
+          }),
+          activeCycleId: null,
+        }
+      }
+
+      return state
+    },
+    {
+      cycles: new Map<string, Cycle>(),
+      activeCycleId: null,
+    },
+  )
+
   const [secondsPassed, setSecondsPassed] = useState(0)
+
+  const { activeCycleId, cycles } = cyclesState
 
   const activeCycle = activeCycleId ? cycles.get(activeCycleId) : null
 
   function createNewCycle(data: CreateNewCycleParams) {
-    const id = new Date().getTime().toString()
-
     const newCycle: Cycle = {
       task: data.task,
       minuteAmount: data.minuteAmount,
       startDate: new Date(),
     }
 
-    setCycles((prev) => {
-      const updatedCycles = new Map(prev.entries())
-      updatedCycles.set(id, newCycle)
-      return updatedCycles
+    dispatch({
+      type: 'ADD_NEW_CYCLE',
+      payload: {
+        newCycle,
+      },
     })
-    setActiveCycleId(id)
     setSecondsPassed(0)
   }
 
   function stopCurrentCycle() {
-    setCycles((prev) => {
-      const cyclesUpdated = new Map(prev.entries())
-      cyclesUpdated.set(activeCycleId!, {
-        ...cyclesUpdated.get(activeCycleId!)!,
-        suspendedDate: new Date(),
-      })
-      return cyclesUpdated
+    dispatch({
+      type: 'STOP_CURRENT_CYCLE',
     })
-
-    setActiveCycleId(null)
   }
 
   function endActiveCycle() {
-    setCycles((prev) => {
-      const cyclesUpdated = new Map(prev.entries())
-      cyclesUpdated.set(activeCycleId!, {
-        ...cyclesUpdated.get(activeCycleId!)!,
-        endedDate: new Date(),
-      })
-      return cyclesUpdated
+    dispatch({
+      type: 'END_CURRENT_CYCLE',
     })
-
-    setActiveCycleId(null)
   }
 
   function changeSecondsPassed(seconds: number) {
