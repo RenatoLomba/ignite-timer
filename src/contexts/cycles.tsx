@@ -6,13 +6,16 @@ import {
   useState,
 } from 'react'
 
-type Cycle = {
-  task: string
-  minuteAmount: number
-  startDate: Date
-  suspendedDate?: Date
-  endedDate?: Date
-}
+import {
+  cyclesReducer,
+  Cycle,
+  cyclesReducerInitialState,
+} from '../reducers/cycles'
+import {
+  addNewCycleAction,
+  endCurrentCycleAction,
+  stopCurrentCycleAction,
+} from '../reducers/cycles/actions'
 
 type CreateNewCycleParams = {
   task: string
@@ -37,50 +40,10 @@ type CyclesProviderProps = {
   children: ReactNode
 }
 
-type CyclesState = {
-  cycles: Map<string, Cycle>
-  activeCycleId?: string | null
-}
-
 function CyclesProvider({ children }: CyclesProviderProps) {
   const [cyclesState, dispatch] = useReducer(
-    (state: CyclesState, action: any) => {
-      switch (action.type) {
-        case 'ADD_NEW_CYCLE':
-          const { payload } = action
-          const id = new Date().getTime().toString()
-
-          return {
-            ...state,
-            cycles: state.cycles.set(id, payload.newCycle),
-            activeCycleId: id,
-          }
-        case 'STOP_CURRENT_CYCLE':
-          return {
-            ...state,
-            cycles: state.cycles.set(state.activeCycleId!, {
-              ...state.cycles.get(state.activeCycleId!)!,
-              suspendedDate: new Date(),
-            }),
-            activeCycleId: null,
-          }
-        case 'END_CURRENT_CYCLE':
-          return {
-            ...state,
-            cycles: state.cycles.set(state.activeCycleId!, {
-              ...state.cycles.get(state.activeCycleId!)!,
-              endedDate: new Date(),
-            }),
-            activeCycleId: null,
-          }
-        default:
-          return state
-      }
-    },
-    {
-      cycles: new Map<string, Cycle>(),
-      activeCycleId: null,
-    },
+    cyclesReducer,
+    cyclesReducerInitialState,
   )
 
   const [secondsPassed, setSecondsPassed] = useState(0)
@@ -96,25 +59,16 @@ function CyclesProvider({ children }: CyclesProviderProps) {
       startDate: new Date(),
     }
 
-    dispatch({
-      type: 'ADD_NEW_CYCLE',
-      payload: {
-        newCycle,
-      },
-    })
+    dispatch(addNewCycleAction(newCycle))
     setSecondsPassed(0)
   }
 
   function stopCurrentCycle() {
-    dispatch({
-      type: 'STOP_CURRENT_CYCLE',
-    })
+    dispatch(stopCurrentCycleAction())
   }
 
   function endActiveCycle() {
-    dispatch({
-      type: 'END_CURRENT_CYCLE',
-    })
+    dispatch(endCurrentCycleAction())
   }
 
   function changeSecondsPassed(seconds: number) {
