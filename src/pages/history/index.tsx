@@ -23,8 +23,8 @@ export function History() {
             </tr>
           </thead>
           <tbody>
-            {[...cycles.entries()].map(([key, cycle]) => (
-              <tr key={key}>
+            {cycles.map((cycle) => (
+              <tr key={cycle.id}>
                 <td>{cycle.task}</td>
                 <td>{cycle.minuteAmount} minutos</td>
                 <td>

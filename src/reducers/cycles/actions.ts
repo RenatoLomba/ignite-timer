@@ -1,4 +1,4 @@
-import { Cycle, CyclesAction } from '.'
+import type { CyclesAction, NewCycle } from '.'
 
 export enum CyclesActionTypes {
   ADD_NEW_CYCLE = 'ADD_NEW_CYCLE',
@@ -6,7 +6,7 @@ export enum CyclesActionTypes {
   END_CURRENT_CYCLE = 'END_CURRENT_CYCLE',
 }
 
-export function addNewCycleAction(newCycle: Cycle): CyclesAction {
+export function addNewCycleAction(newCycle: NewCycle): CyclesAction {
   return {
     type: CyclesActionTypes.ADD_NEW_CYCLE,
     payload: {

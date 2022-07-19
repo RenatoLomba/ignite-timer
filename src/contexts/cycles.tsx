@@ -10,6 +10,7 @@ import {
   cyclesReducer,
   Cycle,
   cyclesReducerInitialState,
+  NewCycle,
 } from '../reducers/cycles'
 import {
   addNewCycleAction,
@@ -17,16 +18,11 @@ import {
   stopCurrentCycleAction,
 } from '../reducers/cycles/actions'
 
-type CreateNewCycleParams = {
-  task: string
-  minuteAmount: number
-}
-
 type CyclesContextData = {
-  cycles: Map<string, Cycle>
+  cycles: Cycle[]
   activeCycle?: Cycle | null
   secondsPassed: number
-  createNewCycle: (data: CreateNewCycleParams) => void
+  createNewCycle: (data: NewCycle) => void
   changeSecondsPassed: (seconds: number) => void
   endActiveCycle: () => void
   stopCurrentCycle: () => void
@@ -50,16 +46,12 @@ function CyclesProvider({ children }: CyclesProviderProps) {
 
   const { activeCycleId, cycles } = cyclesState
 
-  const activeCycle = activeCycleId ? cycles.get(activeCycleId) : null
+  const activeCycle = activeCycleId
+    ? cycles.find((cycle) => cycle.id === activeCycleId)
+    : null
 
-  function createNewCycle(data: CreateNewCycleParams) {
-    const newCycle: Cycle = {
-      task: data.task,
-      minuteAmount: data.minuteAmount,
-      startDate: new Date(),
-    }
-
-    dispatch(addNewCycleAction(newCycle))
+  function createNewCycle(data: NewCycle) {
+    dispatch(addNewCycleAction(data))
     setSecondsPassed(0)
   }
 
