@@ -23,4 +23,22 @@ export const CountdownContainer = styled.div`
     justify-content: center;
     background: transparent;
   }
+
+  @media screen and (max-width: 768px) {
+    font-size: 5rem;
+    line-height: 4rem;
+
+    span.separator {
+      width: 2rem;
+    }
+  }
+
+  @media screen and (max-width: 465px) {
+    font-size: 2.5rem;
+    line-height: 2rem;
+
+    span.separator {
+      width: 1rem;
+    }
+  }
 `
